@@ -2,5 +2,5 @@
 
 @section('content')
 
-<dashboard :posts="{{ json_encode($posts) }}"></dashboard>
+<dashboard></dashboard>
 @endsection

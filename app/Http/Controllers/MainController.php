@@ -11,7 +11,14 @@ class MainController extends Controller
     {
         $posts = Post::all();
 
-        return view('dashboard', compact('posts'));
+        return view('dashboard');
+    }
+
+    public function posts()
+    {
+        $posts = Post::all();
+
+        return response()->json($posts);
     }
 
     public function show($id)
@@ -56,7 +63,7 @@ class MainController extends Controller
     public function delete($id)
     {
 
-        // Post::where('id', $id)->delete();
+        Post::where('id', $id)->delete();
 
         return response()->json([
             'success' => true,

@@ -38,9 +38,9 @@
   <script> 
   import dayjs from 'dayjs';
   export default {
-    props: ['posts'],
-    data() {
+    data() {  
     return {
+            posts: [],
             message: null,
         };
     },
@@ -50,6 +50,7 @@
         fetch(`/delete_post/${postId}`).then(response => response.json()).then(data => {
             this.message = data.message;
             console.log(data.message);
+            this.fetchPosts();
         })
       },
       editPost(postId)
@@ -63,6 +64,17 @@
       formatDateTime(dateTime) {
         return dayjs(dateTime).format('YYYY.MM.DD HH:mm');
         },
+      fetchPosts() {
+          fetch('/posts')
+          .then(responce => responce.json())
+          .then(data => {
+            this.posts = data
+          });
+      },
     },
+
+    mounted(){
+      this.fetchPosts();
+    }
   };
   </script>
