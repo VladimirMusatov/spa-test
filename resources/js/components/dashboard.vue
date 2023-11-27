@@ -1,12 +1,19 @@
 <template>
     <div class="mt-3">
-        <div v-if="message !== null">
+      <div v-if="message !== null">
             <div class="alert alert-success alert-dismissible fade show" role="alert">{{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">                
                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg></button>
             </div>
         </div>
-      <div v-for="post in posts" :key="post.id" class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+      <div v-if="loading" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <!--  -->
+    <div v-else>
+      <div v-for="post in paginatedPosts" :key="post.id" class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
         <div class="col  p-4 d-flex flex-column position-static">
           <div class="d-flex justify-content-between">
             <strong class="d-inline-block mb-2 text-success-emphasis">{{ post.title }}</strong>
@@ -33,48 +40,88 @@
         </div>
       </div>
     </div>
+
+    <nav class="mt-3" aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <a class="page-link" @click="changePage(currentPage - 1)" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" v-for="pageNumber in totalPages" :key="pageNumber" :class="{ active: pageNumber === currentPage }">
+                <a class="page-link" @click="changePage(pageNumber)">{{ pageNumber }}</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <a class="page-link" @click="changePage(currentPage + 1)" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    </div>
   </template>
   
-  <script> 
+  <script>
   import dayjs from 'dayjs';
+  
   export default {
-    data() {  
-    return {
-            posts: [],
-            message: null,
-        };
+    data() {
+      return {
+        posts: [],
+        paginatedPosts: [],
+        message: null,
+        currentPage: 1,
+        itemsPerPage: 2,
+        totalPosts: 0,
+        loading: false,
+      };
     },
-
+  
     methods: {
-        deletePost(postId) {
-        fetch(`/delete_post/${postId}`).then(response => response.json()).then(data => {
+      deletePost(postId) {
+        fetch(`/delete_post/${postId}`)
+          .then(response => response.json())
+          .then(data => {
             this.message = data.message;
             console.log(data.message);
             this.fetchPosts();
-        })
+          });
       },
-      editPost(postId)
-      {
+      editPost(postId) {
         window.location.href = `/edit_post/${postId}`;
       },
-      showPost(postId)
-      {
+      showPost(postId) {
         window.location.href = `/show_post/${postId}`;
       },
       formatDateTime(dateTime) {
         return dayjs(dateTime).format('YYYY.MM.DD HH:mm');
-        },
-      fetchPosts() {
-          fetch('/posts')
-          .then(responce => responce.json())
-          .then(data => {
-            this.posts = data
-          });
+      },
+      async changePage(newPage) {
+        if (newPage >= 1 && newPage <= this.totalPages) {
+          this.loading = true;
+          this.currentPage = newPage;
+          await this.fetchPosts();
+        }
+      },
+      async fetchPosts() {
+        const response = await fetch('/posts');
+        const data = await response.json();
+        this.posts = data;
+        this.totalPosts = this.posts.length;
+
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        this.paginatedPosts  = this.posts.slice(startIndex, endIndex);
+        this.loading = false;
       },
     },
-
-    mounted(){
-      this.fetchPosts();
-    }
+    computed: {
+      totalPages() {
+        return Math.ceil(this.totalPosts / this.itemsPerPage);
+      },
+    },
+    async  mounted() {
+      await this.fetchPosts();
+    },
   };
   </script>
