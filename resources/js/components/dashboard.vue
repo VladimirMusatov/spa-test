@@ -71,7 +71,7 @@
         paginatedPosts: [],
         message: null,
         currentPage: 1,
-        itemsPerPage: 2,
+        itemsPerPage: 5,
         totalPosts: 0,
         loading: false,
       };
@@ -82,6 +82,7 @@
         fetch(`/delete_post/${postId}`)
           .then(response => response.json())
           .then(data => {
+            this.loading = true;
             this.message = data.message;
             console.log(data.message);
             this.fetchPosts();
