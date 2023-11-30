@@ -65,7 +65,6 @@ export default {
         },
         close_modal()
         {
-          console.log('close modal');
           const modal = this.$refs.createPostModal;
           $(modal).modal('hide');
         }

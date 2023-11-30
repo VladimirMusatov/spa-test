@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import CreatePost from './components/create-post.vue'
 import dashboard from './components/dashboard.vue'
 import Edit from './components/edit-post.vue'
+import Delete from './components/delete-post.vue';
 
 import  Form  from 'vform'
 import { AlertSuccess } from 'vform/src/components/bootstrap5'
@@ -18,6 +19,7 @@ app.component(AlertSuccess.name, AlertSuccess)
 app.component('create-post', CreatePost)
 app.component('dashboard', dashboard)
 app.component('edit-post', Edit)
+app.component('delete-post', Delete)
 
 
 window.axios = axios;
