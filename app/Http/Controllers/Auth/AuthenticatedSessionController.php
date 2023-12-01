@@ -23,24 +23,33 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request)
     {
 
-        $request->validate([
-            'g-recaptcha-response' => 'required|captcha'
+        $this->validate($request, [
+            'email' => 'required',
+            'password' => 'required',
         ]);
 
-        $request->authenticate();
+        if(!Auth::attempt($request->only('email', 'password'))){
 
-        $request->session()->regenerate();
+            return response()->json([
+                'success' => false,
+                'message' => 'Authentication failed. Please check your credentials.', 
+            ]);
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        }
+
+        return response()->json([            
+            'success' => true,
+            'message' => 'You have successfully logged',
+        ]);
     }
 
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): void
     {
         Auth::guard('web')->logout();
 
@@ -48,6 +57,19 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
     }
+
+    public function currentUser(Request $request)
+    {
+        if(Auth::check()){
+            return response()->json([            
+                'isAuthenticated' => true,
+            ]);
+        }else{
+            return response()->json([            
+                'isAuthenticated' => false,
+            ]);
+        }
+    }
+
 }

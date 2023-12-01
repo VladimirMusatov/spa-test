@@ -101,4 +101,13 @@ class MainController extends Controller
         ]);
 
     }
+
+    public function recaptcha(Request $request)
+    {
+        $data = [
+            'site_key' => config('captcha.sitekey'),
+        ];
+
+        return response()->json($data);
+    }
 }

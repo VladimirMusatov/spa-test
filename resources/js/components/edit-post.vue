@@ -18,15 +18,15 @@
             </div>
           </div>            
             <form :id="'update_post_' + post.id" action="#" @submit.prevent="update_post">
-              <input type="hidden" name="id" v-model="form.id" id="id">
+              <input type="hidden" name="id" v-model="form.id">
               <div class="mb-3">
                 <label class="form-label">Title</label>
-                <input type="text" id="title" v-model="form.title" :class="{'is-invalid': form.errors.has('title')}" class="form-control" name="title">
+                <input type="text" v-model="form.title" :class="{'is-invalid': form.errors.has('title')}" class="form-control" name="title">
                 <div v-if="form.errors.has('title')" class='text text-danger' v-html="form.errors.get('title')"/>
               </div>
               <div class="mb-3">
                 <label  class="form-label">Text</label>
-                <textarea name="text" id="text" v-model="form.text" :class="{'is-invalid': form.errors.has('text')}" class="form-control"></textarea>
+                <textarea name="text" v-model="form.text" :class="{'is-invalid': form.errors.has('text')}" class="form-control"></textarea>
                 <div v-if="form.errors.has('text')" class='text text-danger' v-html="form.errors.get('text')"/>
               </div>
             </form>

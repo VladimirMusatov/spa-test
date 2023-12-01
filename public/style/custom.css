@@ -1,0 +1,23 @@
+.my-custom-link {
+    display: inline-flex;
+    align-items: center;
+    padding-left: 1px;
+    padding-top: 1px;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
+    border-bottom-color: transparent;
+    font-size: 0.875rem; /* Размер шрифта для text-sm */
+    font-weight: 500;   /* Толщина шрифта для font-medium */
+    line-height: 1.25;   /* Высота строки для leading-5 */
+    color: #718096;      /* Цвет текста для text-gray-500 */
+    transition-property: color, border-color;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .my-custom-link:hover,
+  .my-custom-link:focus {
+    text-decoration: none;
+    color: #4a5568;      /* Цвет текста при наведении для hover:text-gray-700 и focus:text-gray-700 */
+    border-color: transparent; /* Цвет границы при наведении и фокусе для hover:border-transparent и focus:border-transparent */
+  }
