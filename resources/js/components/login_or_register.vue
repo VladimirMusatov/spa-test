@@ -45,15 +45,8 @@
                             <div v-if="form.errors.has('password')" class='text text-danger' v-html="form.errors.get('password')"/>
                         </div>
 
-                        <!-- <div v-if="recaptchaKey">
-                            <div class="g-recaptcha" :data-sitekey="recaptchaKey.site_key"></div>
-                        </div> -->
-
-                        <!-- <div class="flex items-center mt-4">
-                            <button  class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                Login
-                            </button>
-                        </div> -->
+                        <div ref="captcha_login" class="g-recaptcha mt-3"></div>
+                        <div v-if="form.errors.has('grecaptchaResponse')" class='text text-danger' v-html="form.errors.get('grecaptchaResponse')"/>
                     </form>
                     </div>
                 </div>
@@ -115,15 +108,10 @@
                             <div v-if="form.errors.has('password_confirmation')" class='text text-danger' v-html="form.errors.get('password_confirmation')"/>
                         </div>
 
-                        <!-- <div v-if="recaptchaKey">
-                            <div class="g-recaptcha" :data-sitekey="recaptchaKey.site_key"></div>
-                        </div> -->
 
-                        <!-- <div class="flex items-center mt-4">
-                            <button  class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                Login
-                            </button>
-                        </div> -->
+                        <div ref="captcha_register" class="g-recaptcha mt-3"></div>
+                        <div v-if="form.errors.has('g-recaptcha-response')" class='text text-danger' v-html="form.errors.get('g-recaptcha-response')"/>
+
                     </form>
                     </div>
                 </div>
@@ -152,32 +140,70 @@
          error: null,
          recaptchaKey: null,
          isAuthenticated: false,
+         captchaResponse: null,
          form: new Form({
             email: '',
             name: '',
             password: '',
             password_confirmation: '',
+            captchaResponse: '',
             }),
         };
     },
     mounted() {
         this.checkAuthentication();
-        // this.getRecaptchaKey();
+        this.loadRecaptchaScript();;
     },
     methods: {
-        // async getRecaptchaKey() {
-        //     const response = await axios.get('/get-recaptcha-key');
-        //     this.recaptchaKey = response.data;
+        loadRecaptchaScript(){
+            const script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?render=explicit';
+            script.async = true;
+            script.defer = true;
 
-        //     console.log('Ключ сайта:', this.recaptchaKey.site_key);
-        //     grecaptcha.ready(() => 
-        //          grecaptcha.execute(this.recaptchaKey.site_key, { action: 'login' })
-        //             .then(token => {
-        //                 // Отправьте токен reCAPTCHA с вашей формой
-        //                 console.log('reCAPTCHA token:', token);
-        //             })
-        //     );
-        // },
+            script.onload = () => {
+                this.renderCaptcha();
+            };
+            script.onerror = (error) => {
+            console.error('Ошибка при загрузке скрипта reCAPTCHA:', error);
+        };
+
+        document.head.appendChild(script);
+
+        },
+        async renderCaptcha() {
+            try {
+                const response = await axios.get('/get-recaptcha-key');
+                this.recaptchaKey = response.data.site_key;
+                const options = {
+                    sitekey: this.recaptchaKey,
+                    callback: this.onCaptchaVerified,
+                };
+                const captchaLoginElement = this.$refs.captcha_login;
+                if (!captchaLoginElement.hasAttribute('data-rendered')) {
+                     try {
+                        grecaptcha.render(captchaLoginElement, options);
+                        this.$refs.captcha_login.setAttribute('data-rendered', 'true');
+                    } catch (loginError) {
+                        console.error('Ошибка при рендеринге reCAPTCHA для формы входа:', loginError);
+                    }
+                }
+                if (!this.$refs.captcha_register.hasAttribute('data-rendered')) {
+                    try {
+                        grecaptcha.render(this.$refs.captcha_register, options);
+                        this.$refs.captcha_register.setAttribute('data-rendered', 'true');
+                    } catch (registerError) {
+                        console.error('Ошибка при рендеринге reCAPTCHA для формы регистрации:', registerError);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Ошибка при получении ключа reCAPTCHA:', error);
+            }
+        },
+        onCaptchaVerified(response){
+            this.captchaResponse = response;
+        },  
         checkAuthentication() {
             axios.get('/user').then(response => {
                 this.isAuthenticated = response.data.isAuthenticated;
@@ -189,7 +215,12 @@
             $(modalLogin).modal('hide');
             this.form.reset();
         },
-        login(){
+        async login(){
+            if(this.captchaResponse != null)
+            {
+                this.form.grecaptchaResponse = this.captchaResponse;
+            }
+
             this.loading = true;
             this.form.post('/login')
             .then((response)=> {
@@ -203,7 +234,9 @@
                     this.message = null;
                 }
             }).finally(() => 
-                this.loading = false
+                this.captchaResponse = null,
+                this.loading = false,
+                this.renderCaptcha(),
             )
         },
         logout()
@@ -214,6 +247,11 @@
         },
         register()
         {
+            if(this.captchaResponse != null)
+            {
+                this.form.grecaptchaResponse = this.captchaResponse;
+            }
+
             this.loading = true;
             this.form.post('/register')
             .then((response) => {
@@ -227,8 +265,10 @@
                     this.error = response.data.message;
                     this.message = null;
                 }
-            }).finally(() => 
-                this.loading = false
+            }).finally(() =>
+                this.captchaResponse = null,
+                this.loading = false,
+                this.renderCaptcha(),
             )
         }
 

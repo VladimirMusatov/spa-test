@@ -29,6 +29,7 @@ class AuthenticatedSessionController extends Controller
         $this->validate($request, [
             'email' => 'required',
             'password' => 'required',
+            'grecaptchaResponse' => ['required', 'captcha'],
         ]);
 
         if(!Auth::attempt($request->only('email', 'password'))){
