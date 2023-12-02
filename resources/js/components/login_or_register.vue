@@ -41,7 +41,7 @@
                         <!-- Password -->
                         <div class="mt-4">
                             <label for="login_password">Password</label>
-                            <input id="login_password" v-model="form.password" :class="{'form-control': true, 'is-invalid': form.errors.has('password')}" type="password" name="password"/>
+                            <input id="login_password" v-model="form.password" :class="{'form-control': true, 'is-invalid': form.errors.has('password')}" type="password" name="password" />
                             <div v-if="form.errors.has('password')" class='text text-danger' v-html="form.errors.get('password')"/>
                         </div>
 
@@ -97,14 +97,14 @@
                         <!-- Password -->
                         <div class="mt-4">
                             <label for="password">Password</label>
-                            <input id="password" v-model="form.password" :class="{'form-control': true, 'is-invalid': form.errors.has('password')}" type="password" name="password"/>
+                            <input id="password" v-model="form.password" :class="{'form-control': true, 'is-invalid': form.errors.has('password')}" type="password" name="password" autocomplete />
                             <div v-if="form.errors.has('password')" class='text text-danger' v-html="form.errors.get('password')"/>
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="mt-4">
                             <label for="password_confirmation">Confirm Password</label>
-                            <input id="password_confirmation" v-model="form.password_confirmation" :class="{'form-control': true, 'is-invalid': form.errors.has('password_confirmation')}" type="password" name="password_confirmation"/>
+                            <input id="password_confirmation" v-model="form.password_confirmation" :class="{'form-control': true, 'is-invalid': form.errors.has('password_confirmation')}" type="password" name="password_confirmation" autocomplete />
                             <div v-if="form.errors.has('password_confirmation')" class='text text-danger' v-html="form.errors.get('password_confirmation')"/>
                         </div>
 
@@ -234,7 +234,6 @@
                     this.message = null;
                 }
             }).finally(() => 
-                this.captchaResponse = null,
                 this.loading = false,
                 this.renderCaptcha(),
             )

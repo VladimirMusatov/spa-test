@@ -9,8 +9,6 @@ class MainController extends Controller
 {
     public function index()
     {
-        $posts = Post::all();
-
         return view('dashboard');
     }
 
@@ -19,6 +17,15 @@ class MainController extends Controller
         $posts = Post::all();
 
         return response()->json($posts);
+    }
+
+    public function get_post($id)
+    {
+
+        $post = Post::where('id', $id)->first();
+
+        return response()->json($post);
+
     }
 
     public function show($id)
@@ -34,11 +41,6 @@ class MainController extends Controller
         $post = Post::where('id', $id)->first();
 
         return view('show', compact('post'));
-    }
-
-    public function create()
-    {
-        return view('form');
     }
 
     public function store(Request $request)
@@ -69,13 +71,6 @@ class MainController extends Controller
             'success' => true,
             'message' => 'The post was successfully deleted',
         ]);
-    }
-
-    public function edit($id)
-    {
-        $post = Post::where('id', $id)->first();
-
-        return view('edit_post', compact('post'));
     }
 
     public function update(Request $request)

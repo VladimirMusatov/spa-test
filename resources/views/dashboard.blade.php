@@ -2,6 +2,6 @@
 
 @section('content')
 
-<dashboard></dashboard>
+<router-view></router-view>
 
 @endsection
