@@ -7,7 +7,6 @@ import Edit from './components/edit-post.vue';
 import Delete from './components/delete-post.vue';
 import LoginOrRegister from './components/login_or_register.vue';
 import Show from './components/show-post.vue';
-import NotFound from './components/not-found.vue';
 import dashboardLink from './components/dashboard-link.vue';
 
 
@@ -52,11 +51,6 @@ const router = createRouter({
       path: '/dashboard/',
       name: 'dashboard',
       component: dashboard,
-    },
-    {
-      path: '/:catchAll(.*)',
-      name: 'not-found',
-      component: NotFound,
     },
   ],
 });
